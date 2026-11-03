@@ -208,13 +208,22 @@
 </div>
 
 
-<script>
-document.getElementById("loginButton").addEventListener("click", function() {
-    document.getElementById("loginMessage").textContent =
-    "BUTTON CLICK DETECTED. THE BUTTON IS WORKING.";
-});
-</script>
+<script type="module">
+try {
+    await import("./admin.js");
 
-<script type="module" src="admin.js"></script>
+    document.getElementById("loginMessage").textContent =
+        "ADMIN JAVASCRIPT LOADED SUCCESSFULLY.";
+
+} catch (error) {
+
+    document.getElementById("loginMessage").textContent =
+        "JAVASCRIPT ERROR: " + error.message;
+
+    document.getElementById("loginMessage").style.color = "#ff5252";
+
+    console.error(error);
+}
+</script>
 </body>
 </html>
