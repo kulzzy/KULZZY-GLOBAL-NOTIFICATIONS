@@ -209,17 +209,12 @@
 
 
 <script>
-window.addEventListener("error", function(event) {
-    const box = document.getElementById("loginMessage");
-    box.textContent = "JAVASCRIPT ERROR: " + event.message;
-    box.style.color = "#ff5252";
-});
-
-window.addEventListener("unhandledrejection", function(event) {
-    const box = document.getElementById("loginMessage");
-    box.textContent = "FIREBASE ERROR: " + event.reason;
-    box.style.color = "#ff5252";
+document.getElementById("loginButton").addEventListener("click", function() {
+    document.getElementById("loginMessage").textContent =
+    "BUTTON CLICK DETECTED. THE BUTTON IS WORKING.";
 });
 </script>
+
+<script type="module" src="admin.js"></script>
 </body>
 </html>
