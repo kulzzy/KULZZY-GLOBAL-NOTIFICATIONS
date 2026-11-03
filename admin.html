@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#06122a">
+
+<title>Kulzzy Radio | Notification Admin</title>
+
+<link rel="stylesheet" href="admin.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <header>
+        <div class="brand">
+            <div class="logo">K</div>
+            <div>
+                <h2>KULZZY RADIO</h2>
+                <small>GLOBAL NOTIFICATION CENTER</small>
+            </div>
+        </div>
+
+        <div class="admin-status" id="adminStatus">
+            OFFLINE
+        </div>
+    </header>
+
+
+    <!-- LOGIN -->
+
+    <section id="loginSection" class="login-card">
+
+        <h1>ADMIN LOGIN</h1>
+        <p>Sign in to manage global notifications.</p>
+
+        <input
+            type="email"
+            id="adminEmail"
+            placeholder="Administrator Email"
+        >
+
+        <input
+            type="password"
+            id="adminPassword"
+            placeholder="Password"
+        >
+
+        <button id="loginButton">
+            SIGN IN
+        </button>
+
+        <p id="loginMessage"></p>
+
+    </section>
+
+
+    <!-- ADMIN DASHBOARD -->
+
+    <main id="dashboard" hidden>
+
+        <div class="welcome">
+            <div>
+                <h1>Notification Center</h1>
+                <p>Manage announcements across Kulzzy Radio.</p>
+            </div>
+
+            <button id="logoutButton" class="logout">
+                LOGOUT
+            </button>
+        </div>
+
+
+        <!-- STATISTICS -->
+
+        <section class="stats">
+
+            <div class="stat-card">
+                <span>TOTAL NOTIFICATIONS</span>
+                <h2 id="totalCount">0</h2>
+            </div>
+
+            <div class="stat-card">
+                <span>PUBLISHED</span>
+                <h2 id="publishedCount">0</h2>
+            </div>
+
+            <div class="stat-card">
+                <span>DRAFTS</span>
+                <h2 id="draftCount">0</h2>
+            </div>
+
+        </section>
+
+
+        <!-- CREATE NOTIFICATION -->
+
+        <section class="editor">
+
+            <h2 id="formHeading">CREATE NOTIFICATION</h2>
+
+            <input type="hidden" id="editingId">
+
+            <label>Notification Title</label>
+
+            <input
+                type="text"
+                id="notificationTitle"
+                maxlength="100"
+                placeholder="Enter notification title"
+            >
+
+            <label>Notification Message</label>
+
+            <textarea
+                id="notificationMessage"
+                maxlength="2000"
+                placeholder="Write your announcement here..."
+            ></textarea>
+
+            <label>Where should this notification appear?</label>
+
+            <select id="notificationTarget">
+
+                <option value="all">ALL KULZZY RADIO PAGES</option>
+
+                <option value="home">HOME</option>
+
+                <option value="voters">VOTERS</option>
+
+                <option value="wishes">BIRTHDAY WISHES</option>
+
+                <option value="community">COMMUNITY</option>
+
+                <option value="leadership">LEADERSHIP CHALLENGE</option>
+
+                <option value="music">MUSIC STREAMING</option>
+
+                <option value="business">BUSINESS CHAMPION</option>
+
+                <option value="other">OTHER PAGES</option>
+
+            </select>
+
+
+            <label>Publication Status</label>
+
+            <select id="notificationStatus">
+
+                <option value="published">PUBLISH NOW</option>
+
+                <option value="draft">SAVE AS DRAFT</option>
+
+            </select>
+
+
+            <div class="button-row">
+
+                <button id="saveButton">
+                    PUBLISH NOTIFICATION
+                </button>
+
+                <button id="cancelButton" class="cancel" hidden>
+                    CANCEL EDIT
+                </button>
+
+            </div>
+
+            <p id="saveMessage"></p>
+
+        </section>
+
+
+        <!-- NOTIFICATION HISTORY -->
+
+        <section class="history">
+
+            <div class="history-heading">
+                <h2>NOTIFICATION HISTORY</h2>
+
+                <button id="refreshButton">
+                    REFRESH
+                </button>
+            </div>
+
+            <div id="notificationList">
+
+                <p class="empty">
+                    Loading notifications...
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        KULZZY RADIO NETWORK
+        <br>
+        CELEBRATING LIVES EVERYDAY
+    </footer>
+
+</div>
+
+
+<script type="module" src="admin.js"></script>
+
+</body>
+</html>
