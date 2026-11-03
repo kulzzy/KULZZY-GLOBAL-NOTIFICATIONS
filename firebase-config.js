@@ -5,11 +5,17 @@
 
 export const firebaseConfig = {
     apiKey: "AIzaSyCqMzCkTvQQOYrWZKYRkH553IPMmNYYhIA",
+
     authDomain: "kulzzy-radio-notifications.firebaseapp.com",
+
     databaseURL: "https://kulzzy-radio-notifications-default-rtdb.europe-west1.firebasedatabase.app",
+
     projectId: "kulzzy-radio-notifications",
+
     storageBucket: "kulzzy-radio-notifications.firebasestorage.app",
+
     messagingSenderId: "477307840798",
+
     appId: "1:477307840798:web:7d0ee08c263dd79be0c10f"
 };
 
