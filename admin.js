@@ -1,6 +1,6 @@
 /* =====================================================
    KULZZY RADIO GLOBAL NOTIFICATIONS
-   ADMINISTRATION ENGINE
+   COMPLETE ADMINISTRATION ENGINE
    File: admin.js
    ===================================================== */
 
@@ -131,11 +131,27 @@ function setLoading(button, loading, normalText) {
 }
 
 
+function getFirebaseError(error) {
+
+    const messages = {
+        "auth/invalid-email": "The email address is invalid.",
+        "auth/user-not-found": "Administrator account was not found.",
+        "auth/wrong-password": "Incorrect administrator password.",
+        "auth/invalid-credential": "Incorrect email or password.",
+        "auth/too-many-requests": "Too many attempts. Try again later.",
+        "auth/network-request-failed": "Network connection failed. Check your internet.",
+        "auth/operation-not-allowed": "Email and password login is not enabled in Firebase."
+    };
+
+    return messages[error.code] || error.message || "An unexpected error occurred.";
+}
+
+
 /* =====================================================
    5. ADMINISTRATOR LOGIN
    ===================================================== */
 
-loginButton.addEventListener("click", async () => {
+loginButton.addEventListener("click", async function() {
 
     const email = adminEmail.value.trim();
     const password = adminPassword.value;
@@ -151,6 +167,8 @@ loginButton.addEventListener("click", async () => {
     }
 
     setLoading(loginButton, true, "SIGN IN");
+
+    showMessage(loginMessage, "Connecting to Firebase...", true);
 
     try {
 
@@ -171,7 +189,7 @@ loginButton.addEventListener("click", async () => {
 
         showMessage(
             loginMessage,
-            "Login successful.",
+            "Login successful. Opening dashboard...",
             true
         );
 
@@ -179,13 +197,14 @@ loginButton.addEventListener("click", async () => {
 
         showMessage(
             loginMessage,
-            error.message || "Login failed."
+            getFirebaseError(error)
         );
 
     } finally {
 
         setLoading(loginButton, false, "SIGN IN");
     }
+
 });
 
 
@@ -193,16 +212,23 @@ loginButton.addEventListener("click", async () => {
    6. ADMINISTRATOR LOGOUT
    ===================================================== */
 
-logoutButton.addEventListener("click", async () => {
+logoutButton.addEventListener("click", async function() {
 
     try {
 
         await signOut(auth);
 
+        showMessage(
+            loginMessage,
+            "You have signed out successfully.",
+            true
+        );
+
     } catch (error) {
 
-        alert("Logout failed: " + error.message);
+        alert("Logout failed: " + getFirebaseError(error));
     }
+
 });
 
 
@@ -210,7 +236,7 @@ logoutButton.addEventListener("click", async () => {
    7. AUTHENTICATION CHECK
    ===================================================== */
 
-onAuthStateChanged(auth, async user => {
+onAuthStateChanged(auth, async function(user) {
 
     if (!user) {
 
@@ -226,6 +252,11 @@ onAuthStateChanged(auth, async user => {
 
         await signOut(auth);
 
+        showMessage(
+            loginMessage,
+            "Unauthorized administrator account."
+        );
+
         return;
     }
 
@@ -235,6 +266,7 @@ onAuthStateChanged(auth, async user => {
     adminStatus.textContent = "ADMIN ONLINE";
 
     await loadNotifications();
+
 });
 
 
@@ -244,8 +276,10 @@ onAuthStateChanged(auth, async user => {
 
 async function loadNotifications() {
 
-    if (!auth.currentUser ||
-        auth.currentUser.uid !== ADMIN_UID) {
+    if (
+        !auth.currentUser ||
+        auth.currentUser.uid !== ADMIN_UID
+    ) {
         return;
     }
 
@@ -275,7 +309,7 @@ async function loadNotifications() {
         Object.entries(published).forEach(([id, data]) => {
 
             items.push({
-                id,
+                id: id,
                 source: PUBLISHED_PATH,
                 status: "published",
                 ...data
@@ -286,7 +320,7 @@ async function loadNotifications() {
         Object.entries(drafts).forEach(([id, data]) => {
 
             items.push({
-                id,
+                id: id,
                 source: DRAFT_PATH,
                 status: "draft",
                 ...data
@@ -294,15 +328,19 @@ async function loadNotifications() {
 
         });
 
-        items.sort((a, b) =>
-            (b.createdAt || 0) - (a.createdAt || 0)
-        );
+        items.sort((a, b) => {
+
+            return (b.createdAt || 0) - (a.createdAt || 0);
+
+        });
 
         totalCount.textContent = items.length;
 
-        publishedCount.textContent = Object.keys(published).length;
+        publishedCount.textContent =
+            Object.keys(published).length;
 
-        draftCount.textContent = Object.keys(drafts).length;
+        draftCount.textContent =
+            Object.keys(drafts).length;
 
         displayNotifications(items);
 
@@ -310,9 +348,11 @@ async function loadNotifications() {
 
         notificationList.innerHTML =
             '<p class="empty">Could not load notifications: ' +
-            escapeHTML(error.message) +
+            escapeHTML(getFirebaseError(error)) +
             '</p>';
+
     }
+
 }
 
 
@@ -340,8 +380,6 @@ function displayNotifications(items) {
             ? "badge-published"
             : "badge-draft";
 
-        const badgeText = item.status.toUpperCase();
-
         return `
 
         <div class="notification-item">
@@ -353,7 +391,7 @@ function displayNotifications(items) {
             <div class="notification-meta">
 
                 <span class="badge ${badgeClass}">
-                    ${badgeText}
+                    ${item.status.toUpperCase()}
                 </span>
 
                 <span class="badge badge-draft">
@@ -393,6 +431,7 @@ function displayNotifications(items) {
         `;
 
     }).join("");
+
 }
 
 
@@ -400,10 +439,13 @@ function displayNotifications(items) {
    10. CREATE OR UPDATE NOTIFICATION
    ===================================================== */
 
-saveButton.addEventListener("click", async () => {
+saveButton.addEventListener("click", async function() {
 
-    if (!auth.currentUser ||
-        auth.currentUser.uid !== ADMIN_UID) {
+    if (
+        !auth.currentUser ||
+        auth.currentUser.uid !== ADMIN_UID
+    ) {
+        showMessage(saveMessage, "Administrator login required.");
         return;
     }
 
@@ -417,10 +459,329 @@ saveButton.addEventListener("click", async () => {
 
         showMessage(
             saveMessage,
-            "Please enter both the title and message."
+            "Please enter both the notification title and message."
         );
 
         return;
     }
 
-    const
+    const oldEditingValue = editingId.value;
+
+    const isEditing = oldEditingValue !== "";
+
+    const parts = oldEditingValue.split(":");
+
+    const oldSource = parts[0];
+    const oldId = parts.slice(1).join(":");
+
+    if (
+        isEditing &&
+        (
+            !oldId ||
+            ![PUBLISHED_PATH, DRAFT_PATH].includes(oldSource)
+        )
+    ) {
+
+        showMessage(saveMessage, "Invalid editing record.");
+
+        return;
+    }
+
+    const newSource = status === "published"
+        ? PUBLISHED_PATH
+        : DRAFT_PATH;
+
+    const now = Date.now();
+
+    const record = {
+
+        title: title,
+        message: message,
+        target: target,
+        status: status,
+
+        updatedAt: now,
+
+        updatedBy: auth.currentUser.uid
+
+    };
+
+    setLoading(saveButton, true, "SAVE NOTIFICATION");
+
+    try {
+
+        if (isEditing) {
+
+            const oldRef = ref(
+                database,
+                oldSource + "/" + oldId
+            );
+
+            const oldSnapshot = await get(oldRef);
+
+            if (!oldSnapshot.exists()) {
+
+                throw new Error(
+                    "The notification no longer exists."
+                );
+            }
+
+            const oldData = oldSnapshot.val();
+
+            record.createdAt = oldData.createdAt || now;
+
+            record.createdBy =
+                oldData.createdBy || auth.currentUser.uid;
+
+            if (oldSource === newSource) {
+
+                await set(oldRef, record);
+
+            } else {
+
+                const newRef = ref(
+                    database,
+                    newSource + "/" + oldId
+                );
+
+                await set(newRef, record);
+
+                await remove(oldRef);
+
+            }
+
+            showMessage(
+                saveMessage,
+                "Notification updated successfully!",
+                true
+            );
+
+        } else {
+
+            record.createdAt = now;
+
+            record.createdBy = auth.currentUser.uid;
+
+            const newRef = push(
+                ref(database, newSource)
+            );
+
+            await set(newRef, record);
+
+            showMessage(
+                saveMessage,
+                status === "published"
+                    ? "Notification published successfully!"
+                    : "Draft saved successfully!",
+                true
+            );
+
+        }
+
+        resetForm();
+
+        await loadNotifications();
+
+    } catch (error) {
+
+        showMessage(
+            saveMessage,
+            "Could not save notification: " +
+            getFirebaseError(error)
+        );
+
+    } finally {
+
+        setLoading(
+            saveButton,
+            false,
+            "SAVE NOTIFICATION"
+        );
+
+    }
+
+});
+
+
+/* =====================================================
+   11. EDIT AND DELETE NOTIFICATIONS
+   ===================================================== */
+
+notificationList.addEventListener("click", async function(event) {
+
+    const button = event.target.closest("button[data-action]");
+
+    if (!button) return;
+
+    if (
+        !auth.currentUser ||
+        auth.currentUser.uid !== ADMIN_UID
+    ) {
+        return;
+    }
+
+    const action = button.dataset.action;
+
+    const id = button.dataset.id;
+
+    const source = button.dataset.source;
+
+    if (
+        !id ||
+        ![PUBLISHED_PATH, DRAFT_PATH].includes(source)
+    ) {
+        return;
+    }
+
+    const recordRef = ref(
+        database,
+        source + "/" + id
+    );
+
+    try {
+
+        const snapshot = await get(recordRef);
+
+        if (!snapshot.exists()) {
+
+            alert("This notification no longer exists.");
+
+            await loadNotifications();
+
+            return;
+        }
+
+        const data = snapshot.val();
+
+        if (action === "edit") {
+
+            notificationTitle.value = data.title || "";
+
+            notificationMessage.value = data.message || "";
+
+            notificationTarget.value = data.target || "all";
+
+            notificationStatus.value =
+                source === PUBLISHED_PATH
+                    ? "published"
+                    : "draft";
+
+            editingId.value = source + ":" + id;
+
+            formHeading.textContent = "EDIT NOTIFICATION";
+
+            saveButton.textContent = "UPDATE NOTIFICATION";
+
+            cancelButton.hidden = false;
+
+            showMessage(
+                saveMessage,
+                "Editing notification.",
+                true
+            );
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+            return;
+        }
+
+        if (action === "delete") {
+
+            const confirmed = confirm(
+                "Are you sure you want to permanently delete this notification?"
+            );
+
+            if (!confirmed) return;
+
+            await remove(recordRef);
+
+            showMessage(
+                saveMessage,
+                "Notification deleted successfully.",
+                true
+            );
+
+            await loadNotifications();
+
+        }
+
+    } catch (error) {
+
+        alert(
+            "Operation failed: " + getFirebaseError(error)
+        );
+
+    }
+
+});
+
+
+/* =====================================================
+   12. RESET FORM
+   ===================================================== */
+
+function resetForm() {
+
+    notificationTitle.value = "";
+
+    notificationMessage.value = "";
+
+    notificationTarget.value = "all";
+
+    notificationStatus.value = "published";
+
+    editingId.value = "";
+
+    formHeading.textContent = "CREATE NOTIFICATION";
+
+    saveButton.textContent = "SAVE NOTIFICATION";
+
+    cancelButton.hidden = true;
+
+}
+
+
+/* =====================================================
+   13. CANCEL EDITING
+   ===================================================== */
+
+cancelButton.addEventListener("click", function() {
+
+    resetForm();
+
+    showMessage(
+        saveMessage,
+        "Editing cancelled.",
+        true
+    );
+
+});
+
+
+/* =====================================================
+   14. REFRESH NOTIFICATION HISTORY
+   ===================================================== */
+
+refreshButton.addEventListener("click", async function() {
+
+    setLoading(refreshButton, true, "REFRESH");
+
+    await loadNotifications();
+
+    setLoading(refreshButton, false, "REFRESH");
+
+});
+
+
+/* =====================================================
+   15. INITIALIZATION
+   ===================================================== */
+
+resetForm();
+
+console.log(
+    "KULZZY RADIO GLOBAL NOTIFICATION SYSTEM READY"
+);
