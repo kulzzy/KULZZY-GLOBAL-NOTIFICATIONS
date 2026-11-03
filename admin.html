@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,38 +16,48 @@
 
 <div class="app">
 
+    <!-- HEADER -->
+
     <header>
+
         <div class="brand">
+
             <div class="logo">K</div>
+
             <div>
                 <h2>KULZZY RADIO</h2>
                 <small>GLOBAL NOTIFICATION CENTER</small>
             </div>
+
         </div>
 
         <div class="admin-status" id="adminStatus">
             OFFLINE
         </div>
+
     </header>
 
 
-    <!-- LOGIN -->
+    <!-- ADMIN LOGIN -->
 
     <section id="loginSection" class="login-card">
 
         <h1>ADMIN LOGIN</h1>
+
         <p>Sign in to manage global notifications.</p>
 
         <input
             type="email"
             id="adminEmail"
             placeholder="Administrator Email"
+            autocomplete="username"
         >
 
         <input
             type="password"
             id="adminPassword"
             placeholder="Password"
+            autocomplete="current-password"
         >
 
         <button id="loginButton">
@@ -62,15 +73,28 @@
 
     <main id="dashboard" hidden>
 
+
+        <!-- WELCOME -->
+
         <div class="welcome">
+
             <div>
+
                 <h1>Notification Center</h1>
-                <p>Manage announcements across Kulzzy Radio.</p>
+
+                <p>
+                    Manage announcements across Kulzzy Radio.
+                </p>
+
             </div>
 
-            <button id="logoutButton" class="logout">
+            <button
+                id="logoutButton"
+                class="logout"
+            >
                 LOGOUT
             </button>
+
         </div>
 
 
@@ -79,32 +103,51 @@
         <section class="stats">
 
             <div class="stat-card">
+
                 <span>TOTAL NOTIFICATIONS</span>
+
                 <h2 id="totalCount">0</h2>
+
             </div>
 
+
             <div class="stat-card">
+
                 <span>PUBLISHED</span>
+
                 <h2 id="publishedCount">0</h2>
+
             </div>
 
+
             <div class="stat-card">
+
                 <span>DRAFTS</span>
+
                 <h2 id="draftCount">0</h2>
+
             </div>
 
         </section>
 
 
-        <!-- CREATE NOTIFICATION -->
+        <!-- NOTIFICATION EDITOR -->
 
         <section class="editor">
 
-            <h2 id="formHeading">CREATE NOTIFICATION</h2>
+            <h2 id="formHeading">
+                CREATE NOTIFICATION
+            </h2>
 
-            <input type="hidden" id="editingId">
+            <input
+                type="hidden"
+                id="editingId"
+            >
 
-            <label>Notification Title</label>
+
+            <label for="notificationTitle">
+                Notification Title
+            </label>
 
             <input
                 type="text"
@@ -113,7 +156,10 @@
                 placeholder="Enter notification title"
             >
 
-            <label>Notification Message</label>
+
+            <label for="notificationMessage">
+                Notification Message
+            </label>
 
             <textarea
                 id="notificationMessage"
@@ -121,49 +167,82 @@
                 placeholder="Write your announcement here..."
             ></textarea>
 
-            <label>Where should this notification appear?</label>
+
+            <label for="notificationTarget">
+                Where should this notification appear?
+            </label>
 
             <select id="notificationTarget">
 
-                <option value="all">ALL KULZZY RADIO PAGES</option>
+                <option value="all">
+                    ALL KULZZY RADIO PAGES
+                </option>
 
-                <option value="home">HOME</option>
+                <option value="home">
+                    HOME
+                </option>
 
-                <option value="voters">VOTERS</option>
+                <option value="voters">
+                    VOTERS
+                </option>
 
-                <option value="wishes">BIRTHDAY WISHES</option>
+                <option value="wishes">
+                    BIRTHDAY WISHES
+                </option>
 
-                <option value="community">COMMUNITY</option>
+                <option value="community">
+                    COMMUNITY
+                </option>
 
-                <option value="leadership">LEADERSHIP CHALLENGE</option>
+                <option value="leadership">
+                    LEADERSHIP CHALLENGE
+                </option>
 
-                <option value="music">MUSIC STREAMING</option>
+                <option value="music">
+                    MUSIC STREAMING
+                </option>
 
-                <option value="business">BUSINESS CHAMPION</option>
+                <option value="business">
+                    BUSINESS CHAMPION
+                </option>
 
-                <option value="other">OTHER PAGES</option>
+                <option value="other">
+                    OTHER PAGES
+                </option>
 
             </select>
 
 
-            <label>Publication Status</label>
+            <label for="notificationStatus">
+                Publication Status
+            </label>
 
             <select id="notificationStatus">
 
-                <option value="published">PUBLISH NOW</option>
+                <option value="published">
+                    PUBLISH NOW
+                </option>
 
-                <option value="draft">SAVE AS DRAFT</option>
+                <option value="draft">
+                    SAVE AS DRAFT
+                </option>
 
             </select>
 
+
+            <!-- ACTION BUTTONS -->
 
             <div class="button-row">
 
                 <button id="saveButton">
-                    PUBLISH NOTIFICATION
+                    SAVE NOTIFICATION
                 </button>
 
-                <button id="cancelButton" class="cancel" hidden>
+                <button
+                    id="cancelButton"
+                    class="cancel"
+                    hidden
+                >
                     CANCEL EDIT
                 </button>
 
@@ -179,12 +258,15 @@
         <section class="history">
 
             <div class="history-heading">
+
                 <h2>NOTIFICATION HISTORY</h2>
 
                 <button id="refreshButton">
                     REFRESH
                 </button>
+
             </div>
+
 
             <div id="notificationList">
 
@@ -199,31 +281,82 @@
     </main>
 
 
+    <!-- FOOTER -->
+
     <footer>
+
         KULZZY RADIO NETWORK
+
         <br>
+
         CELEBRATING LIVES EVERYDAY
+
     </footer>
 
 </div>
 
 
+<!-- =================================================
+     JAVASCRIPT ERROR DETECTOR AND ADMIN ENGINE
+     ================================================= -->
+
 <script type="module">
+
+const loginMessage =
+    document.getElementById("loginMessage");
+
+
+window.addEventListener("error", function(event) {
+
+    loginMessage.textContent =
+        "JAVASCRIPT ERROR: " + event.message;
+
+    loginMessage.style.color = "#ff5252";
+
+});
+
+
+window.addEventListener(
+    "unhandledrejection",
+    function(event) {
+
+        const reason = event.reason;
+
+        loginMessage.textContent =
+            "FIREBASE ERROR: " +
+            (reason?.message || String(reason));
+
+        loginMessage.style.color = "#ff5252";
+
+    }
+);
+
+
 try {
+
     await import("./admin.js");
 
-    document.getElementById("loginMessage").textContent =
-        "ADMIN JAVASCRIPT LOADED SUCCESSFULLY.";
+    loginMessage.textContent =
+        "ADMIN SYSTEM LOADED. PLEASE SIGN IN.";
+
+    loginMessage.style.color = "#19c37d";
+
 
 } catch (error) {
 
-    document.getElementById("loginMessage").textContent =
-        "JAVASCRIPT ERROR: " + error.message;
+    console.error(
+        "KULZZY ADMIN SYSTEM ERROR:",
+        error
+    );
 
-    document.getElementById("loginMessage").style.color = "#ff5252";
+    loginMessage.textContent =
+        "SYSTEM ERROR: " + error.message;
 
-    console.error(error);
+    loginMessage.style.color = "#ff5252";
+
 }
+
 </script>
+
 </body>
 </html>
